@@ -1,3 +1,4 @@
+import time
 import unittest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -28,8 +29,17 @@ class NewVisitorTest(unittest.TestCase):
         inputbox = self.browser.find_element(By.ID, "id_new_element")
 
         # the user types "buy peacock feathers" and hits enter
+        self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a to-do item")
+        inputbox.send_keys("Buy peakcock feathers")
+        inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
 
         # the page refreshes and now shows "1: Buy peacock feathers" as an item in a to-do list
+        table = self.browser.find_element(By.ID, "id_list_table")
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        self.assertTrue(any(row.text == "1: Buy peacock feathers" for row in rows),
+                        "New to-do item did not appear in table",
+                        )
 
         # the user types "use feathers to make a fly", hits enter
 
