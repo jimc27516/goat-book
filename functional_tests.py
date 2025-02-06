@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 
+# https://www.obeythetestinggoat.com/book/chapter_05_post_and_database.html#_footnoteref_4
 class NewVisitorTest(unittest.TestCase):
     def setUp(self):
         self.browser = webdriver.Safari()
@@ -13,6 +14,11 @@ class NewVisitorTest(unittest.TestCase):
     def tearDown(self):
         self.browser.quit()
         return super().tearDown()
+
+    def find_row_in_table(self, row_text):
+        table = self.browser.find_element(By.ID, "id_list_table")
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        self.assertIn(row_text, [row.text for row in rows])       
 
     def test_can_start_a_todo_list(self):
         # the user navigates to the url
@@ -30,20 +36,23 @@ class NewVisitorTest(unittest.TestCase):
 
         # the user types "buy peacock feathers" and hits enter
         self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a to-do item")
-        inputbox.send_keys("Buy peakcock feathers")
+        inputbox.send_keys("Buy peacock feathers")
         inputbox.send_keys(Keys.ENTER)
         time.sleep(1)
 
-        # the page refreshes and now shows "1: Buy peacock feathers" as an item in a to-do list
-        table = self.browser.find_element(By.ID, "id_list_table")
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        self.assertTrue(any(row.text == "1: Buy peacock feathers" for row in rows),
-                        "New to-do item did not appear in table",
-                        )
+        # the page refreshes and now shows "1: Buy peacock feathers" as an item in a to-do list        
+        self.find_row_in_table("1: Buy peacock feathers")
 
         # the user types "use feathers to make a fly", hits enter
+        inputbox = self.browser.find_element(By.ID, "id_new_element")
+        inputbox.send_keys("use feathers to make a fly")
+        inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
 
-        # the page refreshes and now shows a second item labeled "2: use feathers to make a fly" as an item
+        # the page refreshes and now there should be two items,  a second item labeled "2: use feathers to make a fly" as an item
+        self.find_row_in_table("1: Buy peacock feathers")
+        self.find_row_in_table("2: use feathers to make a fly")        
+
         self.fail("Finish the test!")
 
         
