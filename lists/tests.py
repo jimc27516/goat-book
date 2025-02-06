@@ -1,6 +1,4 @@
 from django.test import TestCase
-from django.http import HttpRequest
-from lists.views import home_page
 from lists.models import Item
 
 # Create your tests here.
@@ -12,8 +10,24 @@ class HomePageTest(TestCase):
 
     def test_can_save_a_POST_request(self):
         response = self.client.post("/", data={"item_text": "A new list item"})
-        self.assertContains(response, "A new list item")
-        self.assertTemplateUsed(response, "home.html")
+        self.assertEqual(Item.objects.count(), 1, f"Item.objects.count: {Item.objects.count()}")
+        new_Item = Item.objects.first()
+        self.assertEqual(new_Item.text, "A new list item")
+
+    def test_redirects_after_post(self):
+        response = self.client.post("/", data={"item_text": "A new list item"})
+        self.assertRedirects(response, "/")
+
+    def test_only_saves_items_when_necessary(self):
+        self.client.get("/")
+        self.assertEqual(Item.objects.count(), 0, f"Item.objects.count(): {Item.objects.count()}")
+
+    def test_displays_all_list_items(self):
+        Item.objects.create(text="Item1")
+        Item.objects.create(text="Item2")
+        response = self.client.get("/")
+        self.assertContains(response, "Item1")
+        self.assertContains(response, "Item2")
 
 class ItemModelTest(TestCase):
     def test_saving_and_retrieving_items(self):
