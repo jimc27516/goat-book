@@ -1,17 +1,19 @@
 import time
 import unittest
+from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 
 # https://www.obeythetestinggoat.com/book/chapter_05_post_and_database.html#_footnoteref_4
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Safari()
         return super().setUp()
     
     def tearDown(self):
+        # TODO clean up after testcase runs
         self.browser.quit()
         return super().tearDown()
 
@@ -22,7 +24,7 @@ class NewVisitorTest(unittest.TestCase):
 
     def test_can_start_a_todo_list(self):
         # the user navigates to the url
-        self.browser.get("http://localhost:8000")
+        self.browser.get(self.live_server_url)
 
         # the welcome page has "To-Do" in the title
         self.assertIn("To-Do", self.browser.title)
@@ -38,6 +40,7 @@ class NewVisitorTest(unittest.TestCase):
         self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a to-do item")
         inputbox.send_keys("Buy peacock feathers")
         inputbox.send_keys(Keys.ENTER)
+        # TODO remove sleeps
         time.sleep(1)
 
         # the page refreshes and now shows "1: Buy peacock feathers" as an item in a to-do list        
@@ -53,8 +56,4 @@ class NewVisitorTest(unittest.TestCase):
         self.find_row_in_table("1: Buy peacock feathers")
         self.find_row_in_table("2: use feathers to make a fly")        
 
-        self.fail("Finish the test!")
 
-        
-if __name__ == "__main__":
-    unittest.main()

@@ -10,7 +10,6 @@ def home_page(request):
         Item.objects.create(text=request.POST["item_text"])
         return redirect("/")
 
-    # TODO fix passing new items to template
     return render(request, 
                   "home.html",
                   {"items": Item.objects.all() })
