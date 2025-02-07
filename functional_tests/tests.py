@@ -18,7 +18,6 @@ class NewVisitorTest(LiveServerTestCase):
         return super().setUp()
     
     def tearDown(self):
-        # TODO clean up after testcase runs
         self.browser.quit()
         return super().tearDown()
 
@@ -66,4 +65,45 @@ class NewVisitorTest(LiveServerTestCase):
         self.wait_for_row_in_table("1: Buy peacock feathers")
         self.wait_for_row_in_table("2: use feathers to make a fly")        
 
+    def test_multiple_users_can_start_lists_at_different_urls(self):
+        # user 1 starts a new list
+        self.browser.get(self.live_server_url)
+        inputbox = self.browser.find_element(By.ID, "id_new_element")
+        inputbox.send_keys("Buy peacock feathers")
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_table("1: Buy peacock feathers")
+
+        # user 1 gets their own unique url
+        user1_list_url = self.browser.current_url
+        self.assertRegex(user1_list_url, "/lists/.+")
+
+        # user 2 starts a new list
+
+        # delete all the users cookies... might be rundandant
+        self.browser.delete_all_cookies()
+
+        self.browser.quit()
+        self.browser = webdriver.Safari()
+
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_element(By.TAG_NAME, "body").text
+        self.assertNotIn("Buy peacock feathers", page_text)
+        self.assertNotIn("make a fly", page_text)
+
+        inputbox = self.browser.find_element(By.ID, "id_new_element")
+        inputbox.send_keys("Buy milk")
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_table("1: Buy milk")
+
+        # user 2 gets their own unique url
+        user2_list_url = self.browser.current_url
+        self.assertRegex(user2_list_url, "/lists/.+")
+        self.assertNotEqual(user1_list_url, user2_list_url)
+
+        # there is no trace of user 1's list
+        page_text = self.browser.find_element(By.TAG_NAME, "body").text
+        self.assertNotIn("Buy peacock feathers", page_text)
+        self.assertIn("Buy milk", page_text)
+
+        # the user is satisfied and goes back to sleep
 
