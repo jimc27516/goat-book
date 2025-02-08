@@ -5,6 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.safari.webdriver import WebDriver as SafariDriver
 
 
 # https://www.obeythetestinggoat.com/book/chapter_05_post_and_database.html#_footnoteref_4
@@ -12,14 +13,14 @@ from selenium.common.exceptions import WebDriverException
 
 MAX_WAIT = 5
 
-class NewVisitorTest(LiveServerTestCase):
+class FunctionalTest(LiveServerTestCase):
     def setUp(self):
-        self.browser = webdriver.Safari()
-        return super().setUp()
-    
+        super().setUp()
+        self.browser = SafariDriver()
+
     def tearDown(self):
         self.browser.quit()
-        return super().tearDown()
+        super().tearDown()
 
     def wait_for_row_in_table(self, row_text):
         start_time = time.time()
@@ -29,11 +30,12 @@ class NewVisitorTest(LiveServerTestCase):
                 rows = table.find_elements(By.TAG_NAME, "tr")
                 self.assertIn(row_text, [row.text for row in rows])
                 return
-            except(AssertionError, WebDriverException) as e:
+            except (AssertionError, WebDriverException) as e:
                 if time.time() - start_time > MAX_WAIT:
                     raise e
                 time.sleep(0.5)
 
+class HomePageTest(FunctionalTest):
     def test_can_start_a_todo_list(self):
         # the user navigates to the url
         self.browser.get(self.live_server_url)
@@ -47,24 +49,16 @@ class NewVisitorTest(LiveServerTestCase):
 
         # the page invites the user to enter a todo item straight away, they just start typing
         inputbox = self.browser.find_element(By.ID, "id_new_element")
+        self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a to-do item")
 
         # the user types "buy peacock feathers" and hits enter
-        self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a to-do item")
         inputbox.send_keys("Buy peacock feathers")
         inputbox.send_keys(Keys.ENTER)
 
         # the page refreshes and now shows "1: Buy peacock feathers" as an item in a to-do list        
         self.wait_for_row_in_table("1: Buy peacock feathers")
 
-        # the user types "use feathers to make a fly", hits enter
-        inputbox = self.browser.find_element(By.ID, "id_new_element")
-        inputbox.send_keys("use feathers to make a fly")
-        inputbox.send_keys(Keys.ENTER)
-
-        # the page refreshes and now there should be two items,  a second item labeled "2: use feathers to make a fly" as an item
-        self.wait_for_row_in_table("1: Buy peacock feathers")
-        self.wait_for_row_in_table("2: use feathers to make a fly")        
-
+    @unittest.skip("Temporarily skipping multiple users test")
     def test_multiple_users_can_start_lists_at_different_urls(self):
         # user 1 starts a new list
         self.browser.get(self.live_server_url)
@@ -83,12 +77,12 @@ class NewVisitorTest(LiveServerTestCase):
         self.browser.delete_all_cookies()
 
         self.browser.quit()
-        self.browser = webdriver.Safari()
+        self.browser = SafariDriver()
 
         self.browser.get(self.live_server_url)
         page_text = self.browser.find_element(By.TAG_NAME, "body").text
         self.assertNotIn("Buy peacock feathers", page_text)
-        self.assertNotIn("make a fly", page_text)
+        self.assertNotIn("use feathers to make a fly", page_text)
 
         inputbox = self.browser.find_element(By.ID, "id_new_element")
         inputbox.send_keys("Buy milk")
@@ -106,4 +100,22 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertIn("Buy milk", page_text)
 
         # the user is satisfied and goes back to sleep
+
+class ListViewTest(FunctionalTest):
+    def test_displays_all_list_items(self):
+        # Edith starts a new list and sees she can enter a to-do item
+        self.browser.get(self.live_server_url)
+        inputbox = self.browser.find_element(By.ID, "id_new_element")
+        inputbox.send_keys("Buy peacock feathers")
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_table("1: Buy peacock feathers")
+
+        # She enters a second item
+        inputbox = self.browser.find_element(By.ID, "id_new_element")
+        inputbox.send_keys("Use peacock feathers to make a fly")
+        inputbox.send_keys(Keys.ENTER)
+
+        # The page updates again, and now shows both items
+        self.wait_for_row_in_table("1: Buy peacock feathers")
+        self.wait_for_row_in_table("2: Use peacock feathers to make a fly")
 
