@@ -7,5 +7,9 @@ from django.db import models
 #    TODO:  unique url for each list
 #    TODO:  url for creating a new list via POST
 #    TODO:  url for adding a new item to an existing list via POST
+class List(models.Model):
+    pass
+
 class Item(models.Model):
-    text = models.TextField(default="")
+    text = models.TextField(default='')
+    list = models.ForeignKey(List, default=None, on_delete=models.CASCADE)
