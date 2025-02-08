@@ -4,7 +4,6 @@ from lists.models import Item
 
 # Create your views here.
 def home_page(request):
-    print("---------------->home_page<----------------")
     if request.method == "POST":
         print(f"request.POST: {request.POST}")
         Item.objects.create(text=request.POST["item_text"])
@@ -15,5 +14,4 @@ def home_page(request):
                   {"items": Item.objects.all() })
 
 def list_page(request):
-    print("---------------->list_page<----------------")
     return render(request, "home.html", {"items": Item.objects.all()})
