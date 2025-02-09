@@ -4,16 +4,14 @@ from lists.models import Item, List
 
 # Create your views here.
 def home_page(request):
-    if request.method == "POST":
-        list_ = List.objects.create()
-        Item.objects.create(text=request.POST["item_text"], list=list_)
-        # Item.objects.create(text=request.POST["item_text"])
-        return redirect("/lists/the-only-list-in-the-world/")
 
-    items = Item.objects.all()
     return render(request, 
-                  "home.html",
-                  {"items": Item.objects.all() })
+                  "home.html")
 
 def list_page(request):
     return render(request, "list.html", {"items": Item.objects.all()})
+
+def new_list(request):
+    list_ = List.objects.create()
+    Item.objects.create(text=request.POST["item_text"], list=list_)
+    return redirect("/lists/the-only-list-in-the-world/")
