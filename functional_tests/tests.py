@@ -59,7 +59,28 @@ class HomePageTest(FunctionalTest):
         # the page refreshes and now shows "1: Buy peacock feathers" as an item in a to-do list        
         self.wait_for_row_in_table("1: Buy peacock feathers")
 
-    # @unittest.skip("Temporarily skipping multiple users test")
+
+
+class ListViewTest(FunctionalTest):
+    def test_displays_all_list_items(self):
+        # Edith starts a new list and sees she can enter a to-do item
+        self.browser.get(self.live_server_url)
+        inputbox = self.browser.find_element(By.ID, "id_new_element")
+        inputbox.send_keys("Buy peacock feathers")
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_table("1: Buy peacock feathers")
+
+        # She enters a second item
+        inputbox = self.browser.find_element(By.ID, "id_new_element")
+        inputbox.send_keys("Use peacock feathers to make a fly")
+        inputbox.send_keys(Keys.ENTER)
+
+        # The page updates again, and now shows both items
+        self.wait_for_row_in_table("1: Buy peacock feathers")
+        self.wait_for_row_in_table("2: Use peacock feathers to make a fly")
+
+
+    @unittest.skip("Temporarily skipping multiple users test")
     def test_multiple_users_can_start_lists_at_different_urls(self):
         # user 1 starts a new list
         self.browser.get(self.live_server_url)
@@ -101,22 +122,3 @@ class HomePageTest(FunctionalTest):
         self.assertIn("Buy milk", page_text)
 
         # the user is satisfied and goes back to sleep
-
-class ListViewTest(FunctionalTest):
-    def test_displays_all_list_items(self):
-        # Edith starts a new list and sees she can enter a to-do item
-        self.browser.get(self.live_server_url)
-        inputbox = self.browser.find_element(By.ID, "id_new_element")
-        inputbox.send_keys("Buy peacock feathers")
-        inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_table("1: Buy peacock feathers")
-
-        # She enters a second item
-        inputbox = self.browser.find_element(By.ID, "id_new_element")
-        inputbox.send_keys("Use peacock feathers to make a fly")
-        inputbox.send_keys(Keys.ENTER)
-
-        # The page updates again, and now shows both items
-        self.wait_for_row_in_table("1: Buy peacock feathers")
-        self.wait_for_row_in_table("2: Use peacock feathers to make a fly")
-

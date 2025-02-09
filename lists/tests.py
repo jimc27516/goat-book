@@ -1,6 +1,6 @@
 from django.test import TestCase
 from lists.models import Item, List
-
+import unittest
 # Create your tests here.
 class HomePageTest(TestCase):
 
@@ -17,18 +17,20 @@ class NewListTest(TestCase):
 
     def test_redirects_after_POST(self):
         response = self.client.post("/lists/new", data={"item_text": "A new list item"})
-        self.assertRedirects(response, "/lists/the-only-list-in-the-world/")
+        list_ = List.objects.first()
+        self.assertRedirects(response, f"/lists/{list_.id}/")
 
 class ListViewTest(TestCase):
     def test_uses_list_template(self):
-        response = self.client.get("/lists/the-only-list-in-the-world/")
+        list_ = List.objects.create()
+        response = self.client.get(f"/lists/{list_.id}/")
         self.assertTemplateUsed(response, "list.html")
 
     def test_displays_all_items(self):
         list_ = List.objects.create()
         Item.objects.create(text="Item1", list=list_)
         Item.objects.create(text="Item2", list=list_)
-        response = self.client.get("/lists/the-only-list-in-the-world/")
+        response = self.client.get(f"/lists/{list_.id}/")
         self.assertContains(response, "Item1")
         self.assertContains(response, "Item2")
 
@@ -55,6 +57,16 @@ class ItemModelTest(TestCase):
         self.assertEqual(first_saved_item.list, list_)
         self.assertEqual(second_saved_item.text, 'Item the second')
         self.assertEqual(second_saved_item.list, list_)
+
+class ListModelTest(TestCase):
+    def test_get_items_for_specific_list(self):
+        list_ = List.objects.create()
+        Item.objects.create(text="itemey 1", list=list_)
+        Item.objects.create(text="itemey 2", list=list_)
+        self.assertEqual(list_.get_items().count(), 2)
+        self.assertEqual(list_.get_items()[0].text, "itemey 1")
+        self.assertEqual(list_.get_items()[1].text, "itemey 2")
+        
 
 class ListAndItemModelsTest(TestCase):
 
@@ -84,4 +96,30 @@ class ListAndItemModelsTest(TestCase):
         self.assertEqual(first_saved_item.list, list_)
         self.assertEqual(second_saved_item.text, 'Item the second')
         self.assertEqual(second_saved_item.list, list_)
+        
+# @unittest.skip("Temporarily skipping new item test")
+class NewItemTest(TestCase):
+    def test_can_save_a_POST_request_to_an_existing_list(self):
+        # make a new List 
+        list_ = List.objects.create()
+
+        # send a POST request to the list view
+        self.client.post(
+            f"/lists/{list_.id}/add_item",
+            data={"item_text": "A new item for an existing list"}
+        )
+
+        self.assertEqual(list_.get_items().count(), 1)
+        self.assertEqual(list_.get_items()[0].text, "A new item for an existing list")
+
+        # now add a second item to the same list    
+        self.client.post(
+            f"/lists/{list_.id}/add_item",
+            data={"item_text": "A second item for an existing list"}
+        )
+
+        self.assertEqual(list_.get_items().count(), 2)
+        self.assertEqual(list_.get_items()[1].text, "A second item for an existing list")
+
+    # def test_redirects_to_list_view(self):
         
