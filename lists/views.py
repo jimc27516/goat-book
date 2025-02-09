@@ -7,6 +7,7 @@ def home_page(request):
     if request.method == "POST":
         list_ = List.objects.create()
         Item.objects.create(text=request.POST["item_text"], list=list_)
+        # Item.objects.create(text=request.POST["item_text"])
         return redirect("/lists/the-only-list-in-the-world/")
 
     items = Item.objects.all()
@@ -15,4 +16,4 @@ def home_page(request):
                   {"items": Item.objects.all() })
 
 def list_page(request):
-    return render(request, "home.html", {"items": Item.objects.all()})
+    return render(request, "list.html", {"items": Item.objects.all()})
