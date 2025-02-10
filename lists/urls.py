@@ -16,20 +16,12 @@ Including another URLconf
 """
 # TODO: consider refactoring URLS
 
-from django.contrib import admin
-from django.urls import path, include
-from lists import views as list_views
-from django.conf import settings
+from django.urls import path
+from lists import views
 
 
 urlpatterns = [
-    path('', list_views.home_page, name="home"),
-    path('admin/', admin.site.urls),
-    path("lists/", include("lists.urls")),
+    path('<int:list_id>/', views.list_page, name="view_list"),
+    path('new', views.new_list, name="new_list"),
+    path('<int:list_id>/add_item', views.add_item, name="add_item"),
 ]
-
-if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns = [
-        path('__debug__/', include(debug_toolbar.urls)),
-    ] + urlpatterns

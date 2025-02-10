@@ -36,7 +36,6 @@ class FunctionalTest(LiveServerTestCase):
                 time.sleep(0.5)
 
 class HomePageTest(FunctionalTest):
-
     def test_can_start_a_todo_list(self):
         # the user navigates to the url
         self.browser.get(self.live_server_url)
@@ -80,7 +79,7 @@ class ListViewTest(FunctionalTest):
         self.wait_for_row_in_table("2: Use peacock feathers to make a fly")
 
 
-    @unittest.skip("Temporarily skipping multiple users test")
+    # @unittest.skip("Temporarily skipping multiple users test")
     def test_multiple_users_can_start_lists_at_different_urls(self):
         # user 1 starts a new list
         self.browser.get(self.live_server_url)

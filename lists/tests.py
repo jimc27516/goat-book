@@ -11,8 +11,11 @@ class HomePageTest(TestCase):
 class NewListTest(TestCase):
     def test_can_save_a_POST_request(self):
         response = self.client.post("/lists/new", data={"item_text": "A new list item"})
-        self.assertEqual(Item.objects.count(), 1)
-        new_item = Item.objects.first()
+
+        # get the list that was just created
+        new_list = List.objects.first()
+        self.assertEqual(new_list.get_items().count(), 1)
+        new_item = new_list.get_items()[0]
         self.assertEqual(new_item.text, "A new list item")
 
     def test_redirects_after_POST(self):
@@ -75,7 +78,6 @@ class ListModelTest(TestCase):
         
 
 class ListAndItemModelsTest(TestCase):
-
     def test_saving_and_retrieving_items(self):
         list_ = List()
         list_.save()
@@ -116,7 +118,8 @@ class NewItemTest(TestCase):
         )
 
         self.assertEqual(list_.get_items().count(), 1)
-        self.assertEqual(list_.get_items()[0].text, "A new item for an existing list")
+        new_item = list_.get_items()[0]
+        self.assertEqual(new_item.text, "A new item for an existing list")
 
         # now add a second item to the same list    
         self.client.post(
@@ -125,7 +128,8 @@ class NewItemTest(TestCase):
         )
 
         self.assertEqual(list_.get_items().count(), 2)
-        self.assertEqual(list_.get_items()[1].text, "A second item for an existing list")
+        new_item = list_.get_items()[1]
+        self.assertEqual(new_item.text, "A second item for an existing list")
 
     # def test_redirects_to_list_view(self):
         
