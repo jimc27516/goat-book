@@ -10,7 +10,8 @@ def home_page(request):
 
 def list_page(request, list_id):
     # render with just the items in the list
-    return render(request, "list.html", {"items": Item.objects.filter(list=list_id)})
+    list_ = List.objects.get(id=list_id)
+    return render(request, "list.html", {"list": list_})
 
 def new_list(request):
     list_ = List.objects.create()

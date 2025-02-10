@@ -67,6 +67,12 @@ class ListModelTest(TestCase):
         self.assertEqual(list_.get_items()[0].text, "itemey 1")
         self.assertEqual(list_.get_items()[1].text, "itemey 2")
         
+    def test_passes_correct_list_to_template(self):
+        other_list = List.objects.create()
+        correct_list = List.objects.create()
+        response = self.client.get(f"/lists/{correct_list.id}/")
+        self.assertEqual(response.context["list"], correct_list)
+        
 
 class ListAndItemModelsTest(TestCase):
 
