@@ -8,6 +8,13 @@ class HomePageTest(TestCase):
         response = self.client.get("/")
         self.assertTemplateUsed(response, 'home.html')
 
+    def test_home_page_includes_css_file(self):
+        response = self.client.get('/')
+        self.assertIn(
+            '<link href="/static/lists/base.css" rel="stylesheet">',
+            response.content.decode()
+        )
+
 class NewListTest(TestCase):
     def test_can_save_a_POST_request(self):
         response = self.client.post("/lists/new", data={"item_text": "A new list item"})
@@ -36,6 +43,14 @@ class ListViewTest(TestCase):
         response = self.client.get(f"/lists/{list_.id}/")
         self.assertContains(response, "Item1")
         self.assertContains(response, "Item2")
+
+    def test_list_page_includes_css_file(self):
+        list_ = List.objects.create()
+        response = self.client.get(f'/lists/{list_.id}/')
+        self.assertIn(
+            '<link href="/static/lists/base.css" rel="stylesheet">',
+            response.content.decode()
+        )
 
 class ItemModelTest(TestCase):
     def test_saving_and_retrieving_items(self):

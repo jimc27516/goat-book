@@ -58,7 +58,41 @@ class HomePageTest(FunctionalTest):
         # the page refreshes and now shows "1: Buy peacock feathers" as an item in a to-do list        
         self.wait_for_row_in_table("1: Buy peacock feathers")
 
+    def test_layout_and_styling(self):
+        # Edith goes to the home page
+        self.browser.get(self.live_server_url)
+        self.browser.set_window_size(1024, 768)
 
+        # She notices the input box is nicely centered
+        inputbox = self.browser.find_element(By.ID, 'id_new_element')
+        
+        # Debug information
+        print('\nWindow size:', self.browser.get_window_size())
+        
+        # Execute JavaScript to get detailed box information
+        box_details = self.browser.execute_script("""
+            const input = document.getElementById('id_new_element');
+            const rect = input.getBoundingClientRect();
+            return {
+                x: rect.x,
+                y: rect.y,
+                width: rect.width,
+                left: rect.left,
+                right: rect.right,
+                windowWidth: window.innerWidth,
+                computedStyle: window.getComputedStyle(input).width
+            };
+        """)
+        print('Box details:', box_details)
+        print('Input box location:', inputbox.location)
+        print('Input box size:', inputbox.size)
+        print('Calculated center:', inputbox.location['x'] + inputbox.size['width'] / 2)
+        
+        self.assertAlmostEqual(
+            inputbox.location['x'] + inputbox.size['width'] / 2,
+            512,
+            delta=10
+        )
 
 class ListViewTest(FunctionalTest):
     def test_displays_all_list_items(self):
