@@ -48,7 +48,7 @@ class HomePageTest(FunctionalTest):
         self.assertIn("To-Do", header_text)
 
         # the page invites the user to enter a todo item straight away, they just start typing
-        inputbox = self.browser.find_element(By.ID, "id_new_element")
+        inputbox = self.browser.find_element(By.ID, "id_new_item")
         self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a to-do item")
 
         # the user types "buy peacock feathers" and hits enter
@@ -64,30 +64,7 @@ class HomePageTest(FunctionalTest):
         self.browser.set_window_size(1024, 768)
 
         # She notices the input box is nicely centered
-        inputbox = self.browser.find_element(By.ID, 'id_new_element')
-        
-        # Debug information
-        print('\nWindow size:', self.browser.get_window_size())
-        
-        # Execute JavaScript to get detailed box information
-        box_details = self.browser.execute_script("""
-            const input = document.getElementById('id_new_element');
-            const rect = input.getBoundingClientRect();
-            return {
-                x: rect.x,
-                y: rect.y,
-                width: rect.width,
-                left: rect.left,
-                right: rect.right,
-                windowWidth: window.innerWidth,
-                computedStyle: window.getComputedStyle(input).width
-            };
-        """)
-        print('Box details:', box_details)
-        print('Input box location:', inputbox.location)
-        print('Input box size:', inputbox.size)
-        print('Calculated center:', inputbox.location['x'] + inputbox.size['width'] / 2)
-        
+        inputbox = self.browser.find_element(By.ID, 'id_new_item')
         self.assertAlmostEqual(
             inputbox.location['x'] + inputbox.size['width'] / 2,
             512,
@@ -98,13 +75,13 @@ class ListViewTest(FunctionalTest):
     def test_displays_all_list_items(self):
         # Edith starts a new list and sees she can enter a to-do item
         self.browser.get(self.live_server_url)
-        inputbox = self.browser.find_element(By.ID, "id_new_element")
+        inputbox = self.browser.find_element(By.ID, "id_new_item")
         inputbox.send_keys("Buy peacock feathers")
         inputbox.send_keys(Keys.ENTER)
         self.wait_for_row_in_table("1: Buy peacock feathers")
 
         # She enters a second item
-        inputbox = self.browser.find_element(By.ID, "id_new_element")
+        inputbox = self.browser.find_element(By.ID, "id_new_item")
         inputbox.send_keys("Use peacock feathers to make a fly")
         inputbox.send_keys(Keys.ENTER)
 
@@ -117,7 +94,7 @@ class ListViewTest(FunctionalTest):
     def test_multiple_users_can_start_lists_at_different_urls(self):
         # user 1 starts a new list
         self.browser.get(self.live_server_url)
-        inputbox = self.browser.find_element(By.ID, "id_new_element")
+        inputbox = self.browser.find_element(By.ID, "id_new_item")
         inputbox.send_keys("Buy peacock feathers")
         inputbox.send_keys(Keys.ENTER)
         self.wait_for_row_in_table("1: Buy peacock feathers")
@@ -139,7 +116,7 @@ class ListViewTest(FunctionalTest):
         self.assertNotIn("Buy peacock feathers", page_text)
         self.assertNotIn("use feathers to make a fly", page_text)
 
-        inputbox = self.browser.find_element(By.ID, "id_new_element")
+        inputbox = self.browser.find_element(By.ID, "id_new_item")
         inputbox.send_keys("Buy milk")
         inputbox.send_keys(Keys.ENTER)
         self.wait_for_row_in_table("1: Buy milk")
