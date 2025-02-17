@@ -5,7 +5,7 @@
 {% block form_action %}/lists/{{ list.id }}/add_item{% endblock %}
 
 {% block table %}
-    <table id="id_list_table">
+    <table class="table table-striped" id="id_list_table">
         {% for item in list.get_items %}
             <tr><td>{{ forloop.counter }}: {{ item.text }}</td></tr>
         {% endfor %}
