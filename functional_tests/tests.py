@@ -1,5 +1,6 @@
 import time
 import unittest
+import os
 from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -17,6 +18,9 @@ class FunctionalTest(LiveServerTestCase):
     def setUp(self):
         super().setUp()
         self.browser = SafariDriver()
+        staging_server = os.environ.get('STAGING_SERVER')  
+        if staging_server:
+            self.live_server_url = 'http://' + staging_server
 
     def tearDown(self):
         self.browser.quit()
