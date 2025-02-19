@@ -1,15 +1,13 @@
-FROM python:3.11
+FROM python:3.13-slim
+RUN python -m venv /venv
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PATH="/venv/bin:$PATH"  
 
-# Set work directory
-WORKDIR /code
+RUN pip install "django<6"
+RUN pip install "django-debug-toolbar"
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+COPY src /src
 
-# Copy project
-COPY . . 
+WORKDIR /src
+
+CMD python manage.py runserver 0.0.0.0:8888

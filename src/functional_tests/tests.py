@@ -2,6 +2,7 @@ import time
 import unittest
 import os
 from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -18,9 +19,10 @@ class FunctionalTest(LiveServerTestCase):
     def setUp(self):
         super().setUp()
         self.browser = SafariDriver()
-        staging_server = os.environ.get('STAGING_SERVER')  
-        if staging_server:
-            self.live_server_url = 'http://' + staging_server
+        test_server = os.environ.get("TEST_SERVER")  
+        if test_server:
+            self.live_server_url = 'http://' + test_server
+        print(self.live_server_url)
 
     def tearDown(self):
         self.browser.quit()
@@ -38,7 +40,6 @@ class FunctionalTest(LiveServerTestCase):
                 if time.time() - start_time > MAX_WAIT:
                     raise e
                 time.sleep(0.5)
-
 class HomePageTest(FunctionalTest):
     def test_can_start_a_todo_list(self):
         # the user navigates to the url
